@@ -13,23 +13,7 @@ app.use(express.json());
 app.use(cors());
 
 // ========================================
-// Database initialization
-// ========================================
-
-let databaseInitialized = false;
-
-const connectDatabase = async () => {
-  if (databaseInitialized) {
-    return;
-  }
-
-  await initializeDatabase();
-
-  databaseInitialized = true;
-};
-
-// ========================================
-// Seed initial student data
+// Seed initial data
 // ========================================
 
 const seedStudents = async () => {
@@ -49,23 +33,13 @@ const seedStudents = async () => {
 };
 
 // ========================================
-// Root route
+// Root Route
 // ========================================
 
-app.get("/", async (req, res) => {
-  try {
-    await connectDatabase();
-
-    res.status(200).json({
-      message: "Student Management API is running",
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      error: "Database connection failed",
-    });
-  }
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "Student Management API is running",
+  });
 });
 
 // ========================================
@@ -74,13 +48,13 @@ app.get("/", async (req, res) => {
 
 app.get("/students", async (req, res) => {
   try {
-    await connectDatabase();
+    await initializeDatabase();
 
     const students = await Student.find();
 
     res.status(200).json(students);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching students:", error);
 
     res.status(500).json({
       error: "Internal server error",
@@ -89,12 +63,12 @@ app.get("/students", async (req, res) => {
 });
 
 // ========================================
-// POST create student
+// POST student
 // ========================================
 
 app.post("/students", async (req, res) => {
   try {
-    await connectDatabase();
+    await initializeDatabase();
 
     const { name, age, gender, grade, attendance, marks } = req.body;
 
@@ -111,7 +85,7 @@ app.post("/students", async (req, res) => {
 
     res.status(201).json(student);
   } catch (error) {
-    console.error(error);
+    console.error("Error creating student:", error);
 
     res.status(500).json({
       error: "Internal Server Error",
@@ -120,12 +94,12 @@ app.post("/students", async (req, res) => {
 });
 
 // ========================================
-// PUT update student
+// PUT student
 // ========================================
 
 app.put("/students/:id", async (req, res) => {
   try {
-    await connectDatabase();
+    await initializeDatabase();
 
     const studentId = req.params.id;
 
@@ -146,7 +120,7 @@ app.put("/students/:id", async (req, res) => {
 
     res.status(200).json(updatedStudent);
   } catch (error) {
-    console.error(error);
+    console.error("Error updating student:", error);
 
     res.status(500).json({
       message: "Server error",
@@ -160,7 +134,7 @@ app.put("/students/:id", async (req, res) => {
 
 app.delete("/students/:id", async (req, res) => {
   try {
-    await connectDatabase();
+    await initializeDatabase();
 
     const studentId = req.params.id;
 
@@ -177,7 +151,7 @@ app.delete("/students/:id", async (req, res) => {
       student: deletedStudent,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error deleting student:", error);
 
     res.status(500).json({
       error: "Internal server error",
@@ -186,7 +160,31 @@ app.delete("/students/:id", async (req, res) => {
 });
 
 // ========================================
-// Export Express app for Vercel
+// Local development
+// ========================================
+
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+
+  const startServer = async () => {
+    try {
+      await initializeDatabase();
+
+      await seedStudents();
+
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error("Failed to start server:", error);
+    }
+  };
+
+  startServer();
+}
+
+// ========================================
+// Vercel
 // ========================================
 
 module.exports = app;
