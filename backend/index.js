@@ -12,7 +12,26 @@ const { students } = require("./data/students.data");
 app.use(express.json());
 app.use(cors());
 
-// Seed initial data
+// ========================================
+// Database initialization
+// ========================================
+
+let databaseInitialized = false;
+
+const connectDatabase = async () => {
+  if (databaseInitialized) {
+    return;
+  }
+
+  await initializeDatabase();
+
+  databaseInitialized = true;
+};
+
+// ========================================
+// Seed initial student data
+// ========================================
+
 const seedStudents = async () => {
   try {
     const studentCount = await Student.countDocuments();
@@ -29,9 +48,34 @@ const seedStudents = async () => {
   }
 };
 
-// Get all students
+// ========================================
+// Root route
+// ========================================
+
+app.get("/", async (req, res) => {
+  try {
+    await connectDatabase();
+
+    res.status(200).json({
+      message: "Student Management API is running",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Database connection failed",
+    });
+  }
+});
+
+// ========================================
+// GET all students
+// ========================================
+
 app.get("/students", async (req, res) => {
   try {
+    await connectDatabase();
+
     const students = await Student.find();
 
     res.status(200).json(students);
@@ -44,11 +88,16 @@ app.get("/students", async (req, res) => {
   }
 });
 
-// Create student
-app.post("/students", async (req, res) => {
-  const { name, age, gender, grade, attendance, marks } = req.body;
+// ========================================
+// POST create student
+// ========================================
 
+app.post("/students", async (req, res) => {
   try {
+    await connectDatabase();
+
+    const { name, age, gender, grade, attendance, marks } = req.body;
+
     const student = new Student({
       name,
       age,
@@ -70,11 +119,16 @@ app.post("/students", async (req, res) => {
   }
 });
 
-// Update student
-app.put("/students/:id", async (req, res) => {
-  const studentId = req.params.id;
+// ========================================
+// PUT update student
+// ========================================
 
+app.put("/students/:id", async (req, res) => {
   try {
+    await connectDatabase();
+
+    const studentId = req.params.id;
+
     const updatedStudent = await Student.findByIdAndUpdate(
       studentId,
       req.body,
@@ -100,11 +154,16 @@ app.put("/students/:id", async (req, res) => {
   }
 });
 
-// Delete student
-app.delete("/students/:id", async (req, res) => {
-  const studentId = req.params.id;
+// ========================================
+// DELETE student
+// ========================================
 
+app.delete("/students/:id", async (req, res) => {
   try {
+    await connectDatabase();
+
+    const studentId = req.params.id;
+
     const deletedStudent = await Student.findByIdAndDelete(studentId);
 
     if (!deletedStudent) {
@@ -126,21 +185,8 @@ app.delete("/students/:id", async (req, res) => {
   }
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
+// ========================================
+// Export Express app for Vercel
+// ========================================
 
-const startServer = async () => {
-  try {
-    await initializeDatabase();
-
-    await seedStudents();
-
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error);
-  }
-};
-
-startServer();
+module.exports = app;
