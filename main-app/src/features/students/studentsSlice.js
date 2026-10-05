@@ -1,43 +1,70 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-// Define the async thunk to fetch student data from an API
+// API URL
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://student-management-system-ten-ashy.vercel.app";
+
+// ========================================
+// Fetch Students
+// ========================================
+
 export const fetchStudents = createAsyncThunk(
   "students/fetchStudents",
-  async (_, { rejectWithValue }) => {
+  async (_, thunkAPI) => {
     try {
-      const response = await fetch("https://api.example.com/students");
+      const response = await fetch(`${API_URL}/students`);
+
       if (!response.ok) {
         throw new Error("Failed to fetch students");
       }
+
       const data = await response.json();
+
       return data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error.message);
     }
   },
 );
 
-// Define the initial state
+// ========================================
+// Initial State
+// ========================================
+
 const initialState = {
   students: [],
-  status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: "idle",
   error: null,
 };
 
+// ========================================
+// Students Slice
+// ========================================
+
 const studentsSlice = createSlice({
   name: "students",
+
   initialState,
+
   reducers: {},
+
   extraReducers: (builder) => {
     builder
+
+      // Fetch pending
       .addCase(fetchStudents.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
+
+      // Fetch fulfilled
       .addCase(fetchStudents.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.students = action.payload;
       })
+
+      // Fetch rejected
       .addCase(fetchStudents.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Something went wrong";
