@@ -3,10 +3,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 // API URL
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-// ========================================
-// Fetch Students
-// ========================================
 
+// Fetch Students
 export const fetchStudents = createAsyncThunk(
   "students/fetchStudents",
   async (_, thunkAPI) => {
@@ -26,20 +24,14 @@ export const fetchStudents = createAsyncThunk(
   },
 );
 
-// ========================================
 // Initial State
-// ========================================
-
 const initialState = {
   students: [],
   status: "idle",
   error: null,
 };
 
-// ========================================
 // Students Slice
-// ========================================
-
 const studentsSlice = createSlice({
   name: "students",
 
