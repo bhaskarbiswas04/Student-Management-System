@@ -1,23 +1,38 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addStudentAsync } from "../features/students/studentsSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const StudentForm = ({ onClose }) => {
-  const dispatch = useDispatch();
+import {
+  addStudentAsync,
+  updateStudentAsync,
+} from "../features/students/studentsSlice";
 
-  const { addStatus, error } = useSelector((state) => state.students);
+const StudentForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Student data passed through Link state when editing
+  const existingStudent = location.state?.student;
+
+  // Determines whether this is Add or Edit mode
+  const isEditing = Boolean(existingStudent);
+
+  const { addStatus, updateStatus, error } = useSelector(
+    (state) => state.students,
+  );
 
   const [formData, setFormData] = useState({
-    name: "",
-    age: "",
-    grade: "",
-    gender: "Male",
-    attendance: "",
-    marks: "",
+    name: existingStudent?.name || "",
+    age: existingStudent?.age || "",
+    grade: existingStudent?.grade || "",
+    gender: existingStudent?.gender || "Male",
+    attendance: existingStudent?.attendance ?? "",
+    marks: existingStudent?.marks ?? "",
   });
 
-  const [validationError, setValidationError] = useState("");
+//   const [validationError, setValidationError] = useState("");
 
   // ========================================
   // Handle Input Changes
@@ -30,8 +45,6 @@ const StudentForm = ({ onClose }) => {
       ...previousData,
       [name]: value,
     }));
-
-    setValidationError("");
   };
 
   // ========================================
@@ -43,90 +56,127 @@ const StudentForm = ({ onClose }) => {
 
     // Validation
     if (!formData.name.trim()) {
-      setValidationError("Name is required.");
+      toast.error("Name is required.");
       return;
     }
 
     if (!formData.age) {
-      setValidationError("Age is required.");
+      toast.error("Age is required.");
       return;
     }
 
     if (Number(formData.age) <= 0) {
-      setValidationError("Age must be greater than 0.");
+      toast.error("Age must be greater than 0.");
       return;
     }
 
     if (!formData.grade.trim()) {
-      setValidationError("Grade is required.");
+      toast.error("Grade is required.");
       return;
     }
 
     if (!formData.gender) {
-      setValidationError("Please select a gender.");
+      toast.error("Please select a gender.");
       return;
     }
 
-    // Convert number fields from strings to numbers
-    const newStudent = {
+    if (
+      formData.attendance !== "" &&
+      (Number(formData.attendance) < 0 || Number(formData.attendance) > 100)
+    ) {
+      toast.error("Attendance must be between 0 and 100.");
+      return;
+    }
+
+    if (
+      formData.marks !== "" &&
+      (Number(formData.marks) < 0 || Number(formData.marks) > 100)
+    ) {
+      toast.error("Marks must be between 0 and 100.");
+      return;
+    }
+
+    // Student object
+    const studentData = {
       name: formData.name.trim(),
       age: Number(formData.age),
       grade: formData.grade.trim(),
       gender: formData.gender,
-      attendance: formData.attendance ? Number(formData.attendance) : 0,
-      marks: formData.marks ? Number(formData.marks) : 0,
+      attendance: Number(formData.attendance) || 0,
+      marks: Number(formData.marks) || 0,
     };
 
     try {
-      await dispatch(addStudentAsync(newStudent)).unwrap();
+      // ========================================
+      // EDIT STUDENT
+      // ========================================
+
+      if (isEditing) {
+        await dispatch(
+          updateStudentAsync({
+            id: existingStudent._id,
+            updatedStudent: studentData,
+          }),
+        ).unwrap();
+
+        toast.success("Student updated successfully!");
+
+        navigate(`/students/${existingStudent._id}`);
+
+        return;
+      }
+
+      // ========================================
+      // ADD STUDENT
+      // ========================================
+
+      await dispatch(addStudentAsync(studentData)).unwrap();
 
       toast.success("Student added successfully!");
 
-      // Reset form
-      setFormData({
-        name: "",
-        age: "",
-        grade: "",
-        gender: "Male",
-        attendance: "",
-        marks: "",
-      });
-
-      // Close form
-      onClose();
+      navigate("/students");
     } catch (error) {
-      toast.error(error || "Failed to add student.");
+      toast.error(
+        error ||
+          (isEditing ? "Failed to update student." : "Failed to add student."),
+      );
     }
   };
 
+  const isSubmitting = addStatus === "loading" || updateStatus === "loading";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+    <div className="mx-auto max-w-2xl">
+      {/* Back */}
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 transition hover:text-indigo-600"
+      >
+        ← Back
+      </button>
+
+      {/* Form Card */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Add Student</h2>
+        <div className="border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-6 text-white sm:px-8">
+          <h1 className="text-2xl font-bold sm:text-3xl">
+            {isEditing ? "Edit Student" : "Add Student"}
+          </h1>
 
-            <p className="mt-1 text-sm text-gray-500">
-              Enter the student's information below.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-          >
-            ✕
-          </button>
+          <p className="mt-1 text-sm text-indigo-100">
+            {isEditing
+              ? "Update the student's information below."
+              : "Enter the student's information below."}
+          </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5 px-6 py-6">
-          {/* Validation Error */}
-          {(validationError || error) && (
+        <form onSubmit={handleSubmit} className="space-y-6 px-6 py-6 sm:px-8">
+          {/* Redux Error */}
+          {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {validationError || error}
+              {error}
             </div>
           )}
 
@@ -272,7 +322,7 @@ const StudentForm = ({ onClose }) => {
           <div className="flex justify-end gap-3 border-t border-gray-100 pt-5">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => navigate(-1)}
               className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
             >
               Cancel
@@ -280,10 +330,14 @@ const StudentForm = ({ onClose }) => {
 
             <button
               type="submit"
-              disabled={addStatus === "loading"}
+              disabled={isSubmitting}
               className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {addStatus === "loading" ? "Adding..." : "Add Student"}
+              {isSubmitting
+                ? "Saving..."
+                : isEditing
+                  ? "Update Student"
+                  : "Add Student"}
             </button>
           </div>
         </form>
