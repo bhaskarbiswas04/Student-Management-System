@@ -1,9 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 // API URL
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://student-management-system-ten-ashy.vercel.app";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 // ========================================
 // Fetch Students
