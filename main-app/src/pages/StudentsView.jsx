@@ -50,7 +50,7 @@ const StudentView = () => {
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold text-gray-900">
-                Student List
+                Students List
               </h2>
 
               {status === "succeeded" && (

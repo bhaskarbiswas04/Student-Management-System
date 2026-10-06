@@ -1,15 +1,50 @@
-import { Link, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
+import { useDispatch, useSelector } from "react-redux";
+
+import { toast } from "sonner";
+
+import { deleteStudentAsync } from "../features/students/studentsSlice";
 
 const StudentDetail = () => {
   const { id } = useParams();
 
-  const { students } = useSelector((state) => state.students);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // Find student using URL id
+  const { students, deleteStatus } = useSelector((state) => state.students);
+
+  // Find student
   const student = students.find((student) => student._id === id);
 
-  // Student not found
+  // ========================================
+  // Delete Student
+  // ========================================
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${student.name}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dispatch(deleteStudentAsync(student._id)).unwrap();
+
+      toast.success("Student deleted successfully!");
+
+      navigate("/students");
+    } catch (error) {
+      toast.error(error || "Failed to delete student.");
+    }
+  };
+
+  // ========================================
+  // Student Not Found
+  // ========================================
+
   if (!student) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -45,15 +80,17 @@ const StudentDetail = () => {
         ← Back to Students
       </Link>
 
-      {/* Card */}
+      {/* Student Card */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-8 py-8 text-white">
           <div className="flex items-center gap-5">
+            {/* Avatar */}
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 text-3xl font-bold backdrop-blur-sm">
               {student.name.charAt(0).toUpperCase()}
             </div>
 
+            {/* Name */}
             <div>
               <p className="mb-1 text-sm font-medium text-indigo-100">
                 Student Details
@@ -133,7 +170,8 @@ const StudentDetail = () => {
           </div>
 
           {/* Actions */}
-          <div className="mt-8 flex gap-3 border-t border-gray-100 pt-6">
+          <div className="mt-8 flex flex-wrap gap-3 border-t border-gray-100 pt-6">
+            {/* Edit */}
             <Link
               to={`/students/${student._id}/edit`}
               state={{ student }}
@@ -142,6 +180,17 @@ const StudentDetail = () => {
               Edit Details
             </Link>
 
+            {/* Delete */}
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleteStatus === "loading"}
+              className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {deleteStatus === "loading" ? "Deleting..." : "Delete"}
+            </button>
+
+            {/* Back */}
             <Link
               to="/students"
               className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"

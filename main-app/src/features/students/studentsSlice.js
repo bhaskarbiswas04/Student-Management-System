@@ -82,6 +82,36 @@ export const updateStudentAsync = createAsyncThunk(
 );
 
 // ========================================
+// Delete Student
+// ========================================
+
+export const deleteStudentAsync = createAsyncThunk(
+  "students/deleteStudent",
+  async (studentId, thunkAPI) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/students/${studentId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        throw new Error(
+          errorData.error || "Failed to delete student"
+        );
+      }
+
+      return studentId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+// ========================================
 // Initial State
 // ========================================
 
@@ -90,9 +120,9 @@ const initialState = {
   status: "idle",
   error: null,
 
-  // Status specifically for add/update operations
   addStatus: "idle",
   updateStatus: "idle",
+  deleteStatus: "idle",
 };
 
 // ========================================
@@ -175,6 +205,29 @@ const studentsSlice = createSlice({
         state.updateStatus = "failed";
 
         state.error = action.payload || "Failed to update student";
+      })
+
+      // ==================================
+      // Delete Student
+      // ==================================
+
+      .addCase(deleteStudentAsync.pending, (state) => {
+        state.deleteStatus = "loading";
+        state.error = null;
+      })
+
+      .addCase(deleteStudentAsync.fulfilled, (state, action) => {
+        state.deleteStatus = "succeeded";
+
+        state.students = state.students.filter(
+          (student) => student._id !== action.payload,
+        );
+      })
+
+      .addCase(deleteStudentAsync.rejected, (state, action) => {
+        state.deleteStatus = "failed";
+
+        state.error = action.payload || "Failed to delete student";
       });
   },
 });
