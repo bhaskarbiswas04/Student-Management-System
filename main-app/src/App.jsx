@@ -1,4 +1,5 @@
 import StudentView from "./pages/StudentsView";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -87,6 +88,8 @@ function App() {
       <main className="mx-auto max-w-7xl px-6 py-8 lg:px-8 lg:py-10">
         <StudentView />
       </main>
+
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

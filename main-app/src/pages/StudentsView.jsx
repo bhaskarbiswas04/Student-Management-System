@@ -1,11 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { fetchStudents } from "../features/students/studentsSlice";
 import StudentList from "../components/StudentList";
+import StudentForm from "../components/StudentForm";
 
 const StudentView = () => {
   const dispatch = useDispatch();
+  const [showForm, setShowForm] = useState(false);
 
   const { students, status, error } = useSelector((state) => state.students);
 
@@ -36,6 +38,7 @@ const StudentView = () => {
         <div className="mb-8">
           <button
             type="button"
+            onClick={() => setShowForm(true)}
             className="rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white cursor-pointer shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             + Add New Student
@@ -89,6 +92,8 @@ const StudentView = () => {
             ))}
         </div>
       </div>
+
+      {showForm && <StudentForm onClose={() => setShowForm(false)} />}
     </div>
   );
 };
