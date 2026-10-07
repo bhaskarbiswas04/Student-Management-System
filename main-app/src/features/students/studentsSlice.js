@@ -123,6 +123,10 @@ const initialState = {
   addStatus: "idle",
   updateStatus: "idle",
   deleteStatus: "idle",
+
+  //for sorting purpose
+  filter: "All",
+  sortBy: "name",
 };
 
 // ========================================
@@ -134,7 +138,15 @@ const studentsSlice = createSlice({
 
   initialState,
 
-  reducers: {},
+  reducers: {
+    setFilter: (state, action) => {
+      state.filter = action.payload;
+    },
+
+    setSortBy: (state, action) => {
+      state.sortBy = action.payload;
+    },
+  },
 
   extraReducers: (builder) => {
     builder
@@ -231,5 +243,7 @@ const studentsSlice = createSlice({
       });
   },
 });
+
+export const { setFilter, setSortBy } = studentsSlice.actions;
 
 export default studentsSlice.reducer;

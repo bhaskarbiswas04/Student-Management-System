@@ -1,9 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+
 import { Toaster } from "sonner";
 
 import StudentView from "./pages/StudentsView";
 import StudentDetail from "./pages/StudentDetail";
 import StudentForm from "./components/StudentForm";
+import ClassView from "./pages/ClassView";
 
 function App() {
   return (
@@ -16,7 +18,7 @@ function App() {
         <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md">
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
             {/* Brand */}
-            <div className="flex items-center gap-3">
+            <Link to="/students" className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white">
                 SM
               </div>
@@ -30,23 +32,23 @@ function App() {
                   Administration Portal
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Navigation */}
             <nav className="hidden items-center gap-1 sm:flex">
-              <a
-                href="/students"
+              <Link
+                to="/students"
                 className="rounded-lg px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
               >
                 Students
-              </a>
+              </Link>
 
-              <a
-                href="#classes"
+              <Link
+                to="/classes"
                 className="rounded-lg px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
               >
                 Classes
-              </a>
+              </Link>
 
               <a
                 href="#school"
@@ -80,6 +82,9 @@ function App() {
 
             {/* Edit Student */}
             <Route path="/students/:id/edit" element={<StudentForm />} />
+
+            {/* Class View */}
+            <Route path="/classes" element={<ClassView />} />
 
             {/* Default */}
             <Route path="*" element={<Navigate to="/students" replace />} />
