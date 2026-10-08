@@ -6,6 +6,7 @@ import StudentView from "./pages/StudentsView";
 import StudentDetail from "./pages/StudentDetail";
 import StudentForm from "./components/StudentForm";
 import ClassView from "./pages/ClassView";
+import SchoolView from "./pages/SchoolView";
 
 function App() {
   return (
@@ -50,12 +51,12 @@ function App() {
                 Classes
               </Link>
 
-              <a
-                href="#school"
+              <Link
+                to="/school"
                 className="rounded-lg px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
               >
                 School
-              </a>
+              </Link>
             </nav>
 
             {/* User */}
@@ -85,6 +86,9 @@ function App() {
 
             {/* Class View */}
             <Route path="/classes" element={<ClassView />} />
+
+            {/* School View */}
+            <Route path="/school" element={<SchoolView />} />
 
             {/* Default */}
             <Route path="*" element={<Navigate to="/students" replace />} />
