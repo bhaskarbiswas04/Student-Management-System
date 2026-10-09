@@ -1,4 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  NavLink,
+} from "react-router-dom";
 
 import { Toaster } from "sonner";
 
@@ -34,29 +41,47 @@ function App() {
                 </p>
               </div>
             </Link>
-
+           
             {/* Navigation */}
             <nav className="hidden items-center gap-1 sm:flex">
-              <Link
+              <NavLink
                 to="/students"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                className={({ isActive }) =>
+                  `rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
               >
                 Students
-              </Link>
+              </NavLink>
 
-              <Link
+              <NavLink
                 to="/classes"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                className={({ isActive }) =>
+                  `rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
               >
                 Classes
-              </Link>
+              </NavLink>
 
-              <Link
+              <NavLink
                 to="/school"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                className={({ isActive }) =>
+                  `rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-700"
+                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
               >
                 School
-              </Link>
+              </NavLink>
             </nav>
 
             {/* User */}
