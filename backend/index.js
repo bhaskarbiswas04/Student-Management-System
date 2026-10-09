@@ -11,7 +11,7 @@ const { students } = require("./data/students.data");
 
 const allowedOrigins = [
   "http://localhost:5173",
-  // "https://task-sync-client.vercel.app",
+  "https://student-management-system-gpiy.vercel.app",
 ];
 
 // Middleware
