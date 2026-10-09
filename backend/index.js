@@ -9,8 +9,19 @@ const { initializeDatabase } = require("./db/db.connection");
 const { Student } = require("./models/students.model");
 const { students } = require("./data/students.data");
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  // "https://task-sync-client.vercel.app",
+];
+
+// Middleware
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: false
+  }),
+);
 app.use(express.json());
-app.use(cors());
 
 // ========================================
 // Seed initial data
