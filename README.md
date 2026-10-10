@@ -2,6 +2,12 @@
 
 A full-stack Student Management System built with the MERN stack. The application allows users to manage student records, filter and sort students, and view school-wide academic statistics through a clean, responsive interface.
 
+## 🌐 Live Demo
+
+**Live Application:** [Student Management System](https://student-management-system-gpiy.vercel.app/)
+
+**Backend API:** [API URL](https://student-management-system-ten-ashy.vercel.app/)
+
 ## Features
 
 ### Student Management
